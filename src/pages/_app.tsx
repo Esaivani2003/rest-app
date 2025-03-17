@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
       {/* Main Content */}
       <main className="flex-grow">
         <Component {...pageProps} />
+        
       </main>
 
       {/* Footer Always at Bottom */}
