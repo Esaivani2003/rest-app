@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import EmployeePage from "./employees";
 
 export default function Home() {
   return (
@@ -17,9 +18,9 @@ export default function Home() {
         <div className="relative text-center text-white p-6">
           <h1 className="text-5xl font-bold">Welcome to Healthy Eats</h1>
           <p className="mt-4 text-lg">Personalized meals based on your health needs</p>
-          <Link href="/menu">
+          <Link href="/employees">
             <button className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md shadow-lg transition duration-300">
-              View Menu
+              go to employees
             </button>
           </Link>
         </div>
@@ -52,9 +53,15 @@ export default function Home() {
               <h3 className="text-xl font-semibold mt-4">Organic Ingredients</h3>
               <p className="text-gray-600">Fresh and organic ingredients for a healthy lifestyle.</p>
             </div>
+
           </div>
         </div>
       </section>
+      <EmployeePage/>
+
+
+
+
     </>
   );
 }
