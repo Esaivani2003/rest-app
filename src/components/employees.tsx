@@ -27,11 +27,11 @@ const EmployeePage = () => {
   };
 
   return (
-    <>
+    <div className=" w-[90%] bg-amber-600">
       <Head>
         <title>Employee Registration</title>
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen w-full  flex items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
           <h2 className="text-3xl font-semibold text-gray-800 text-center">Employee Registration</h2>
           <p className="text-gray-600 mt-2 text-center">Register a new employee in the system.</p>
@@ -92,7 +92,7 @@ const EmployeePage = () => {
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
