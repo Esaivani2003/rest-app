@@ -20,7 +20,7 @@ export default function Home() {
         <div className="relative text-center text-white p-6">
           <h1 className="text-5xl font-bold">Welcome to Healthy Eats</h1>
           <p className="mt-4 text-lg">Personalized meals based on your health needs</p>
-          <Link href="/employee">
+          <Link href="/login">
             <button className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md shadow-lg transition duration-300">
               Go to Employees
             </button>
