@@ -87,7 +87,8 @@ const AuthForm = () => {
                 required
               />
             </div>
-            <button className="w-full py-3 font-semibold rounded-md bg-violet-600 text-white hover:bg-violet-700 transition duration-300 ease-in-out">
+            
+            <button onClick={()=> router.push("/article")} className="w-full py-3 font-semibold rounded-md bg-violet-600 text-white hover:bg-violet-700 transition duration-300 ease-in-out">
               {isSignUp ? "Sign Up" : "Sign In"}
             </button>
           </form>
