@@ -1,11 +1,13 @@
+// import Layout from "../components/layout";     // ✅ Import the Layout page
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import EmployeePage from "./employees";
+// import EmployeePage from "./employees";
 
 export default function Home() {
   return (
-    <>
+    // <Layout> 
+    <> 
       <Head>
         <title>Health-Based Restaurant</title>
         <meta name="description" content="A restaurant menu tailored to your health conditions." />
@@ -20,34 +22,33 @@ export default function Home() {
           <p className="mt-4 text-lg">Personalized meals based on your health needs</p>
           <Link href="/login">
             <button className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md shadow-lg transition duration-300">
-              go to employees
+              Go to Employees
             </button>
           </Link>
         </div>
       </div>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-100">
+      {/* <section className="py-16 bg-gray-100">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-semibold text-gray-800">Why Choose Us?</h2>
           <p className="text-gray-600 mt-4">We provide customized meals based on your health conditions.</p>
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            {/* Feature 1 */}
+
             <div className="bg-white p-6 rounded-lg shadow-md">
               <Image src="/healthy-food.jpg" alt="Healthy Food" width={300} height={200} className="rounded-md" />
               <h3 className="text-xl font-semibold mt-4">Nutritious Meals</h3>
               <p className="text-gray-600">Designed by nutritionists for a balanced diet.</p>
             </div>
 
-            {/* Feature 2 */}
+           
             <div className="bg-white p-6 rounded-lg shadow-md">
               <Image src="/personalized.jpg" alt="Personalized Meals" width={300} height={200} className="rounded-md" />
               <h3 className="text-xl font-semibold mt-4">Personalized Diet</h3>
               <p className="text-gray-600">Meals based on your health conditions (Sugar, BP, etc.).</p>
             </div>
 
-            {/* Feature 3 */}
+           
             <div className="bg-white p-6 rounded-lg shadow-md">
               <Image src="/organic.jpg" alt="Organic Ingredients" width={300} height={200} className="rounded-md" />
               <h3 className="text-xl font-semibold mt-4">Organic Ingredients</h3>
@@ -56,12 +57,10 @@ export default function Home() {
 
           </div>
         </div>
-      </section>
-      <EmployeePage/>
-
-
-
-
-    </>
-  );
+      </section> */}
+      
+      {/* <EmployeePage /> */}
+    {/* // </Layout>   */}
+    </> 
+  );
 }
