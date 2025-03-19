@@ -22,7 +22,7 @@ export default function Home() {
           <p className="mt-4 text-lg">Personalized meals based on your health needs</p>
           <Link href="/login">
             <button className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md shadow-lg transition duration-300">
-              Go to Employees
+              Get Started
             </button>
           </Link>
         </div>

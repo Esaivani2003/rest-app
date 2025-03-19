@@ -30,13 +30,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <nav className="flex-1">
           <ul>
             <li className="p-4 hover:bg-gray-700 transition">
-              <Link href="/food-management">Food Management</Link>
+              <Link href="/Menus">Menu</Link>
             </li>
             <li className="p-4 hover:bg-gray-700 transition">
               <Link href="/order-management">Order Management</Link>
             </li>
             <li className="p-4 hover:bg-gray-700 transition">
-              <Link href="/employee-management">Employee Management</Link>
+              <Link href="/Employee">Employee Management</Link>
             </li>
           </ul>
         </nav>
