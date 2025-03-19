@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import PizzaImage from "../../public/pizza.jpg"
-import PastaImage from "../../public/pasta.jpg"
-import BurgerImage from "../../public/burger.jpg"
+import PizzaImage from "../../public/pizza.jpg";
+import PastaImage from "../../public/pasta.jpg";
+import BurgerImage from "../../public/burger.jpg";
 import Image from "next/image";
 
 interface Addon {
@@ -21,7 +21,6 @@ interface Product {
   addons?: Addon[];
 }
 
-// Sample Products Array
 const products: Product[] = [
   {
     name: "Cheese Burst Pizza",
@@ -61,7 +60,6 @@ const products: Product[] = [
   }
 ];
 
-// ProductCard Component
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const discountedPrice = product.discount
     ? product.price - (product.price * product.discount) / 100
@@ -69,15 +67,10 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border transform hover:scale-105 transition duration-300">
-      {/* Image */}
       <Image src={product.image} alt={product.name} width={100} height={100} className="w-full h-48 object-cover" />
-
-      {/* Content */}
       <div className="p-4">
         <h2 className="text-xl font-bold">{product.name}</h2>
         <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-
-        {/* Price */}
         <div className="mt-3">
           {product.discount ? (
             <p className="text-red-500 font-bold text-lg">
@@ -87,11 +80,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
             <p className="text-green-600 font-bold text-lg">₹{product.price}</p>
           )}
         </div>
-
-        {/* Category */}
         <p className="text-sm text-gray-500 mt-1">Category: {product.category}</p>
-
-        {/* Add-ons */}
         {product.addons && product.addons.length > 0 && (
           <div className="mt-2">
             <h3 className="font-semibold text-gray-700 text-sm">Add-ons:</h3>
@@ -104,8 +93,6 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
             </ul>
           </div>
         )}
-
-        {/* Add to Cart Button */}
         <button className="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">
           Add to Cart
         </button>
@@ -114,10 +101,13 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   );
 };
 
-// ProductList Component
 const ProductList: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6 relative">
+     <button className="absolute top-0 left-0 m-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+  + Add Menu
+</button>
+
       <h1 className="text-3xl font-bold text-center mb-6">Our Menu</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product, index) => (
