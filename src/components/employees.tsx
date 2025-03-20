@@ -1,15 +1,18 @@
 import { useState } from "react";
 import Head from "next/head";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 const EmployeePage = () => {
+  const router = useRouter()
   const [employee, setEmployee] = useState({
-    fullname: "",
+    name: "",
     email: "",
     phone: "",
-    role: "",
-    doj: "",
-  });
+    password: "",
+    role: ""
+  }
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setEmployee({ ...employee, [e.target.name]: e.target.value });
@@ -18,11 +21,16 @@ const EmployeePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/api/employees", employee);
-      alert("Employee Added Successfully!");
-      setEmployee({ fullname: "", email: "", phone: "", role: "", doj: "" });
+       const response:any = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/usersRoute/users`, employee);
+       if (response.status === 201 || response.status === 200) {
+        alert("Employee Added Successfully!");
+        router.push("/Employee");
+      } else {
+        alert("Failed to Add Employee!");
+      }
     } catch (err) {
       console.error("Error adding employee", err);
+      alert("An error occurred while adding the employee.");
     }
   };
 
@@ -38,9 +46,9 @@ const EmployeePage = () => {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <input
               type="text"
-              name="fullname"
+              name="name"
               placeholder="Full Name"
-              value={employee.fullname}
+              value={employee.name}
               onChange={handleChange}
               required
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -63,6 +71,14 @@ const EmployeePage = () => {
               required
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+            <input
+              type="password"
+              name="password"
+              value={employee.password}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
             <select
               name="role"
               value={employee.role}
@@ -71,18 +87,11 @@ const EmployeePage = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select Role</option>
-              <option value="Chef">Chef</option>
-              <option value="Waiter">Waiter</option>
-              <option value="Manager">Manager</option>
+              <option value="chef">Chef</option>
+              <option value="waiter">Waiter</option>
+              <option value="provider">Provider</option>
+              <option value="admin">Admin</option>
             </select>
-            <input
-              type="date"
-              name="doj"
-              value={employee.doj}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
             <button
               type="submit"
               className="w-full p-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-300"
