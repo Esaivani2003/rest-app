@@ -5,6 +5,7 @@ import PizzaImage from "../../public/pizza.jpg";
 import PastaImage from "../../public/pasta.jpg";
 import BurgerImage from "../../public/burger.jpg";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Addon {
   name: string;
@@ -102,9 +103,14 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 };
 
 const ProductList: React.FC = () => {
+  const router = useRouter(); // Initialize router
+
+  const handleAddMenuClick = () => {
+    router.push("/Menus/add"); // Navigate to /Menus/add
+  };
   return (
     <div className="max-w-7xl mx-auto p-6 relative">
-     <button className="absolute top-0 left-0 m-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+     <button onClick={handleAddMenuClick} className="absolute top-0 left-0 m-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
   + Add Menu
 </button>
 
