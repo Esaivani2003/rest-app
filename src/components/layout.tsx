@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';  
 import Link from 'next/link';  
 import Image from 'next/image';  
-import Button from "./ui/button";  
 
 // ✅ Add children prop type
 interface LayoutProps {
@@ -25,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Sidebar Section */}
 
       <div className=' flex h-full'>
-     <aside className="w-64 bg-gray-800 h-full text-white flex flex-col">
+     <aside className="w-64 bg-gray-800  hidden h-full text-white lg:flex flex-col">
        {/* <div className="p-6 text-2xl font-bold">🍴 Restaurant App</div>*/}
         <nav className="flex-1">
           <ul>
