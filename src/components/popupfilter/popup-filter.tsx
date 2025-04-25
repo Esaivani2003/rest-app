@@ -1,8 +1,6 @@
-"use client"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -11,23 +9,46 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Filter } from "lucide-react"
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Filter } from "lucide-react";
+
+// Mock food items data
+const allFoodItems = [
+  { id: 1, name: "Hard taco, chicken", price: 2.5, relatedDiseases: ["diabetes", "hypertension"] },
+  { id: 2, name: "Hard taco, beef", price: 2.75, relatedDiseases: ["arthritis"] },
+  { id: 3, name: "Curly fries", price: 1.75, relatedDiseases: ["diabetes"] },
+  { id: 4, name: "Large soda", price: 2.0, relatedDiseases: ["hypertension", "heart-disease"] },
+];
 
 export default function PopupFilter() {
-  const [priceRange, setPriceRange] = useState([0, 1000])
-  const [open, setOpen] = useState(false)
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [selectedDisease, setSelectedDisease] = useState<string | null>(null);
+  const [filteredItems, setFilteredItems] = useState(allFoodItems); // Initially show all items
+  const [open, setOpen] = useState(false);
 
   const handlePriceChange = (value: number[]) => {
-    setPriceRange(value)
-  }
+    setPriceRange(value);
+  };
+
+  const handleDiseaseChange = (value: string) => {
+    setSelectedDisease(value);
+  };
 
   const applyFilters = () => {
-    // Apply filters logic here
-    console.log("Filters applied")
-    setOpen(false)
-  }
+    let filtered = allFoodItems;
+
+    // Filter by selected disease
+    if (selectedDisease) {
+      filtered = filtered.filter(item => item.relatedDiseases.includes(selectedDisease));
+    }
+
+    // Filter by price range
+    filtered = filtered.filter(item => item.price >= priceRange[0] && item.price <= priceRange[1]);
+
+    setFilteredItems(filtered); // Update the filtered food items
+    setOpen(false); // Close the dialog
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -79,7 +100,7 @@ export default function PopupFilter() {
 
           <div className="space-y-2">
             <h4 className="font-medium">Related Disease</h4>
-            <Select>
+            <Select onValueChange={handleDiseaseChange}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select disease" />
               </SelectTrigger>
@@ -102,6 +123,5 @@ export default function PopupFilter() {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

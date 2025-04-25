@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface Addon {
@@ -20,11 +19,11 @@ interface Product {
   addons?: Addon[];
 }
 
-const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) => void; isInCart: boolean }> = ({
-  product,
-  toggleCart,
-  isInCart,
-}) => {
+const ProductCard: React.FC<{
+  product: Product;
+  toggleCart: (product: Product) => void;
+  isInCart: boolean;
+}> = ({ product, toggleCart, isInCart }) => {
   const discountedPrice = product.discount
     ? product.price - (product.price * product.discount) / 100
     : product.price;
@@ -32,7 +31,11 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border transform hover:scale-105 transition duration-300">
       {product.image ? (
-        <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-48 object-cover"
+        />
       ) : (
         <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
           <span className="text-gray-500">No Image</span>
@@ -44,13 +47,16 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
         <div className="mt-3">
           {product.discount ? (
             <p className="text-red-500 font-bold text-lg">
-              <span className="line-through text-gray-400">₹{product.price}</span> ₹{discountedPrice}
+              <span className="line-through text-gray-400">₹{product.price}</span> ₹
+              {discountedPrice}
             </p>
           ) : (
             <p className="text-green-600 font-bold text-lg">₹{product.price}</p>
           )}
         </div>
-        <p className="text-sm text-gray-500 mt-1">Category: {product.category}</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Category: {product.category}
+        </p>
         {product.addons && product.addons.length > 0 && (
           <div className="mt-2">
             <h3 className="font-semibold text-gray-700 text-sm">Add-ons:</h3>
@@ -66,7 +72,9 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
         <button
           onClick={() => toggleCart(product)}
           className={`mt-4 w-full py-2 rounded-md transition ${
-            isInCart ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+            isInCart
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-blue-500 hover:bg-blue-600"
           } text-white`}
         >
           {isInCart ? "Remove from Cart" : "Add to Cart"}
@@ -76,12 +84,10 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
   );
 };
 
-const ProductList: React.FC = () => {
+const userMenuPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<Product[]>([]);
-  const router = useRouter();
 
-  // Load cart from local storage on initial render
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
@@ -89,11 +95,10 @@ const ProductList: React.FC = () => {
     }
   }, []);
 
-  // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/foodRoute/fooditems");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URLL}/api/foodRoute/fooditems`);
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -104,33 +109,21 @@ const ProductList: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // Update local storage whenever cart changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Function to add/remove product from cart
   const toggleCart = (product: Product) => {
     setCartItems((prevCart) => {
       const isAlreadyInCart = prevCart.some((item) => item._id === product._id);
-
-      if (isAlreadyInCart) {
-        return prevCart.filter((item) => item._id !== product._id); // Remove item
-      } else {
-        return [...prevCart, product]; // Add item
-      }
+      return isAlreadyInCart
+        ? prevCart.filter((item) => item._id !== product._id)
+        : [...prevCart, product];
     });
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-5 relative">
-      <button
-        onClick={() => router.push("/Menus/add")}
-        className="mb-3 p-3 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
-      >
-        + Add Menu
-      </button>
-
+    <div className="max-w-7xl mx-auto p-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.length > 0 ? (
           products.map((product) => (
@@ -149,4 +142,4 @@ const ProductList: React.FC = () => {
   );
 };
 
-export default ProductList;
+export default userMenuPage;

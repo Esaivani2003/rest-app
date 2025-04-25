@@ -13,22 +13,37 @@ let dishes: Dish[] = [
   { id: 3, name: "Caesar Salad", price: 8, quantity: 1 },
 ];
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+// import { NextApiRequest, NextApiResponse } from "next";
+import Order from "@/models/order";
+import connectToDatabase from "@/DB/mongodb";
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await connectToDatabase();
+  
   if (req.method === "GET") {
-    const { id } = req.query;
-
-    if (id) {
-      const dish = dishes.find((dish) => dish.id === Number(id));
-
-      if (!dish) {
-        return res.status(404).json({ error: "Dish not found" });
+      try {
+      //   const { userId, status } = req.query;
+        // const { userId } = req.query;
+        // let query = {};
+  
+        // Filter by userId if provided
+        // if (userId) {
+        //   query = { ...query, userId };
+        // }
+  
+        // Filter by status if provided
+      //   if (status) {
+      //     query = { ...query, status };
+      //   }
+  
+        const orders = await Order.find();
+        return res.status(200).json(orders);
+  
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        return res.status(500).json({ error: "Error fetching orders" });
       }
-
-      return res.status(200).json(dish);
     }
-
-    return res.status(200).json(dishes);
-  }
 
   if (req.method === "POST") {
     const { id, name, price, quantity } = req.body;
