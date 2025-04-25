@@ -18,14 +18,58 @@ interface FormData {
   image: FileList;
 }
 
-const categories = ["Electronics", "Clothing", "Furniture", "Books", "Toys"];
+const categories = [
+  "Vegetarian", "Non-Vegetarian", "Vegan", "Dessert",
+  "Beverage", "Fast Food", "Main Course", "Breakfast"
+];
 
-const FormComponent = () => {
-  const { register, handleSubmit, setValue } = useForm<FormData>();
+// Convert image file to Base64
+const convertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+const AddFoodPage = () => {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
   const [addons, setAddons] = useState<Addon[]>([]);
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log("Form Data:", data);
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log("Form Data before submission:", data);
+
+    // Convert image to Base64
+    const base64Image = await convertToBase64(data.image[0]);
+
+    const formData = {
+      name: data.name,
+      category: data.category,
+      price: data.price.toString(),
+      discount: data.discount.toString(),
+      description: data.description,
+      image: base64Image, // Store Base64 in DB
+      addons: JSON.stringify(addons),
+    };
+
+    try {
+      const response = await fetch("/api/foodRoute/fooditems", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert("Item added successfully!");
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while adding the item.");
+    }
   };
 
   const addAddon = () => {
@@ -40,75 +84,65 @@ const FormComponent = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 border grid grid-cols-2 gap-x-6 sm:w-[50%] w-[90%]  rounded-lg shadow-lg bg-white mx-auto">
-      {/* Name */}
-      <div>
-        <label className="block font-semibold">Name:</label>
-        <input type="text" {...register("name")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300" />
-      </div>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 border grid grid-cols-2 gap-x-6 sm:w-[50%] w-[90%] rounded-lg shadow-lg bg-white">
+        <h2 className="col-span-2 text-2xl font-semibold text-center mb-4">Add New Food Item</h2>
 
-      {/* Category Dropdown */}
-      <div>
-        <label className="block font-semibold">Category:</label>
-        <select {...register("category")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300">
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
+        <div>
+          <label className="block font-semibold">Name:</label>
+          <input type="text" {...register("name", { required: true })} className="border p-2 rounded w-full" />
+          {errors.name && <p className="text-red-500 text-xs">Name is required</p>}
+        </div>
+
+        <div>
+          <label className="block font-semibold">Category:</label>
+          <select {...register("category", { required: true })} className="border p-2 rounded w-full">
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          {errors.category && <p className="text-red-500 text-xs">Category is required</p>}
+        </div>
+
+        <div>
+          <label className="block font-semibold">Price:</label>
+          <input type="number" {...register("price", { required: true, min: 0 })} className="border p-2 rounded w-full" />
+          {errors.price && <p className="text-red-500 text-xs">Price is required</p>}
+        </div>
+
+        <div>
+          <label className="block font-semibold">Discount:</label>
+          <input type="number" {...register("discount", { required: true, min: 0, max: 100 })} className="border p-2 rounded w-full" />
+          {errors.discount && <p className="text-red-500 text-xs">Discount must be between 0 and 100</p>}
+        </div>
+
+        <div>
+          <label className="block font-semibold">Description:</label>
+          <textarea {...register("description", { required: true })} className="border p-2 rounded w-full" />
+          {errors.description && <p className="text-red-500 text-xs">Description is required</p>}
+        </div>
+
+        <div className="col-span-2">
+          <label className="block font-semibold">Add-ons:</label>
+          {addons.map((addon, index) => (
+            <div key={index} className="flex space-x-2 mt-2">
+              <input type="text" placeholder="Addon Name" value={addon.name} onChange={(e) => updateAddon(index, "name", e.target.value)} className="border p-2 rounded w-full" />
+              <input type="number" placeholder="Addon Price" value={addon.price} onChange={(e) => updateAddon(index, "price", parseFloat(e.target.value))} className="border p-2 rounded w-1/3" />
+            </div>
           ))}
-        </select>
-      </div>
+          <button type="button" onClick={addAddon} className="mt-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">+ Add Addon</button>
+        </div>
 
-      {/* Price */}
-      <div>
-        <label className="block font-semibold">Price:</label>
-        <input type="number" {...register("price")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300" />
-      </div>
+        <div>
+          <label className="block font-semibold">Image:</label>
+          <input type="file" {...register("image", { required: true })} className="border p-2 rounded w-full" />
+          {errors.image && <p className="text-red-500 text-xs">Image is required</p>}
+        </div>
 
-      {/* Discount */}
-      <div>
-        <label className="block font-semibold">Discount:</label>
-        <input type="number" {...register("discount")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300" />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="block font-semibold">Description:</label>
-        <textarea {...register("description")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300" />
-      </div>
-
-      {/* Addons Section */}
-      <div>
-        <label className="block font-semibold">Add-ons:</label>
-        {addons.map((addon, index) => (
-          <div key={index} className="flex space-x-2 mt-2">
-            <input
-              type="text"
-              placeholder="Addon Name"
-              value={addon.name}
-              onChange={(e) => updateAddon(index, "name", e.target.value)}
-              className="border p-2 rounded w-full focus:ring focus:ring-blue-300"
-            />
-            <input
-              type="number"
-              placeholder="Addon Price"
-              value={addon.price}
-              onChange={(e) => updateAddon(index, "price", parseFloat(e.target.value))}
-              className="border p-2 rounded w-1/3 focus:ring focus:ring-blue-300"
-            />
-          </div>
-        ))}
-        <button type="button" onClick={addAddon} className="mt-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">+ Add Addon</button>
-      </div>
-
-      {/* Image Upload */}
-      <div>
-        <label className="block font-semibold">Image:</label>
-        <input type="file" {...register("image")} className="border p-2 rounded w-full focus:ring focus:ring-blue-300" />
-      </div>
-
-      {/* Submit Button */}
-      <button type="submit" className="bg-green-500 text-white p-2 rounded w-full hover:bg-green-600">Submit</button>
-    </form>
+        <button type="submit" className="col-span-2 bg-green-500 text-white p-7 rounded w-full hover:bg-green-600">Submit</button>
+      </form>
+    </div>
   );
 };
 
-export default FormComponent;
+export default AddFoodPage;

@@ -11,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col justify-center items-center min-h-screen right-3 bg-gray-100 dark:bg-gray-900 space-y-6">
+      <div className="flex flex-col justify-center items-center min-h-screen right-3  space-y-6">
     
         <AuthForm /> 
       </div>
