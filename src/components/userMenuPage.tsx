@@ -118,7 +118,7 @@ const UserMenuPage: React.FC = () => {
   
         // Call recommendation API with the diseases array
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URLL}/api/recommendationRoute/recommendations`, {
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/recommendationRoute/recommendations`, {
             method: 'POST', // Use POST to send the array of diseases
             headers: {
               'Content-Type': 'application/json',
