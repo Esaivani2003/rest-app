@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import FoodItem from "@/models/fooditem"; // Adjust path as needed
+import FoodItem from "@/models/fooditem";
 import connectToDatabase from "@/DB/mongodb";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,31 +7,58 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     try {
-      const { name, description, price, category, image, discount, addons } = req.body;
+      const { name, description, price, category, image, discount = 0, addons = [] } = req.body;
 
-      if (!name || !description || !price || !category || !image) {
+      // Validation
+      if (!name || !description || !price || !category) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // Validate Base64 image format
-      const base64Pattern = /^data:image\/(png|jpeg|jpg|gif);base64,/;
-      if (!base64Pattern.test(image)) {
-        return res.status(400).json({ message: "Invalid Base64 image format" });
+      // Optional Base64 image validation
+      if (image) {
+        const base64Pattern = /^data:image\/(png|jpeg|jpg|gif);base64,/;
+        if (!base64Pattern.test(image)) {
+          return res.status(400).json({ message: "Invalid Base64 image format" });
+        }
       }
 
-      // Create new food item
+      // Validate category against allowed list (as per schema)
+      const allowedCategories = [
+        "Vegetarian",
+        "Non-Vegetarian",
+        "Vegan",
+        "Dessert",
+        "Beverage",
+        "Fast Food",
+        "Main Course",
+        "Breakfast",
+        "Low Carb",
+        "Sugar Free",
+        "High Fiber",
+        "Low Sodium",
+        "Heart Healthy",
+        "Low Fat"
+      ];
+      if (!allowedCategories.includes(category)) {
+        return res.status(400).json({ message: "Invalid category" });
+      }
+
+      // Parse addons safely
+      const parsedAddons = Array.isArray(addons) ? addons : [];
+
       const newFoodItem = new FoodItem({
-        name,
+        name: name.trim(),
         description,
         price: parseFloat(price),
         category,
-        image, // Store Base64 directly
-        discount: parseFloat(discount) || 0,
-        addons: addons ? JSON.parse(addons) : [],
+        image: image || "", // store Base64 or empty string
+        discount: parseFloat(discount),
+        addons: parsedAddons
       });
 
       await newFoodItem.save();
-      return res.status(201).json({ newFoodItem, success: true });
+
+      return res.status(201).json({ success: true, newFoodItem });
     } catch (error) {
       console.error("Error creating food item:", error);
       return res.status(500).json({ message: "Error creating food item", error });

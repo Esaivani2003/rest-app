@@ -20,7 +20,8 @@ interface FormData {
 
 const categories = [
   "Vegetarian", "Non-Vegetarian", "Vegan", "Dessert",
-  "Beverage", "Fast Food", "Main Course", "Breakfast"
+  "Beverage", "Fast Food", "Main Course", "Breakfast",
+  "Low Carb", "Sugar Free", "High Fiber", "Low Sodium", "Heart Healthy", "Low Fat"
 ];
 
 // Convert image file to Base64

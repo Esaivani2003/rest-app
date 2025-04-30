@@ -12,10 +12,12 @@ import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import OrderDetails from "@/components/order-details"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/router";
+
 
 // Mock data - in a real app, this would come from an API
 import { orders as initialOrders } from "@/data/orders"
-import {getUserRole} from "@/Services/CheckRole"
+import { getUserRole } from "@/Services/CheckRole"
 // Define order status types
 type OrderStatus = "ordered" | "preparing" | "ready" | "delivered" | "paid"
 
@@ -27,30 +29,33 @@ export default function OrderDashboard() {
   const [filteredOrders, setFilteredOrders] = useState(initialOrders)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
-  const [userRole, setUserRole] = useState<string| null>() // Default to admin for demo
+  const [userRole, setUserRole] = useState<string | null>() // Default to admin for demo
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
 
+  const router = useRouter();
 
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/orderRoute/orders")
+      const data = await response.json()
+      setOrders(data) // Set the fetched data as orders
+    } catch (error) {
+      console.error("Error fetching orders:", error)
+    }
+  }
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch("/api/orderRoute/orders")
-        const data = await response.json()
-        setOrders(data) // Set the fetched data as orders
-      } catch (error) {
-        console.error("Error fetching orders:", error)
-      }
+    if (orders && orders?.length < 2) {
+      fetchOrders()
     }
+  }, [orders])
 
-    fetchOrders()
-  }, [])
-
-   // Check authentication status on component mount
-    useEffect(() => {
-      const authenticated = getUserRole();
-      setUserRole(authenticated); // Update the state based on authentication
-    }, []);
+  // Check authentication status on component mount
+  useEffect(() => {
+    const authenticated = getUserRole();
+    setUserRole(authenticated); // Update the state based on authentication
+  }, []);
 
   // Filter orders based on status and date
   useEffect(() => {
@@ -91,18 +96,7 @@ export default function OrderDashboard() {
     }
   }
 
-  // Update payment status
-  const updatePaymentStatus = (orderId: string, isPaid: boolean) => {
-    const updatedOrders = orders.map((order) => (order._id === orderId ? { ...order, paymentStatus: isPaid } : order))
-    setOrders(updatedOrders)
 
-    // In a real app, you would make an API call here
-
-    // If the selected order is being updated, update it too
-    if (selectedOrder && selectedOrder._id === orderId) {
-      setSelectedOrder({ ...selectedOrder, paymentStatus: isPaid })
-    }
-  }
 
   // Reset filters
   const resetFilters = () => {
@@ -146,9 +140,9 @@ export default function OrderDashboard() {
         if (status === "ready") {
           actions.push({ label: "Delivered", value: "delivered" })
         }
-        if (status === "delivered" && !paymentStatus) {
-          actions.push({ label: "Mark as Paid", value: "paid" })
-        }
+        // if (status === "delivered" && !paymentStatus) {
+        //   actions.push({ label: "Mark as Paid", value: "paid" })
+        // }
         return actions
 
       case "admin":
@@ -162,7 +156,7 @@ export default function OrderDashboard() {
         if (status === "ready") {
           adminActions.push({ label: "Delivered", value: "delivered" })
         }
-        if (status === "delivered" && !paymentStatus) {
+        if (status === "delivered") {
           adminActions.push({ label: "Mark as Paid", value: "paid" })
         }
         return adminActions
@@ -173,30 +167,55 @@ export default function OrderDashboard() {
   }
 
   // Handle action selection
-  const handleActionSelect = (orderId: string, action: string) => {
-    if (action === "paid") {
-      updatePaymentStatus(orderId, true)
-    } else {
-      updateOrderStatus(orderId, action as OrderStatus)
+  const handleActionSelect = async (orderId: string, action: string) => {
+    try {
+      const orderData = {
+        id: orderId, status: action
+      };
+
+      const response = await fetch('/api/orderRoute/orderStatusUpdate', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Order failed:', errorData);
+        alert("Failed to update order staus. Please try again.");
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Order staus updated successfully:", result);
+      alert("Order staus updated successfully!");
+      fetchOrders()
+
+    } catch (e: any) {
+      console.error("Error placing order:", e);
+      alert("Something went wrong while placing the order.");
     }
+
   }
 
-// Filter orders based on user role
-const RoleBasedOrders = filteredOrders.filter((order) => {
-  switch (userRole) {
-    case "chef":
-      // Chef can only see 'ordered' or 'preparing' orders
-      return order.status === "ordered" || order.status === "preparing";
-    case "waiter":
-      // Waiter can see 'ready', 'delivered', or 'paid' orders
-      return order.status === "ready" || order.status === "delivered";
-    case "admin":
-      // Admin can see all orders
-      return  order.status === "delivered" || order.status === "paid";;
-    default:
-      return false;
-  }
-});
+  // Filter orders based on user role
+  const RoleBasedOrders = filteredOrders.filter((order) => {
+    switch (userRole) {
+      case "chef":
+        // Chef can only see 'ordered' or 'preparing' orders
+        return order.status === "ordered" || order.status === "preparing";
+      case "waiter":
+        // Waiter can see 'ready', 'delivered', or 'paid' orders
+        return order.status === "ready" || order.status === "delivered";
+      case "admin":
+        // Admin can see all orders
+        return order.status === "delivered" || order.status === "paid";;
+      default:
+        return false;
+    }
+  });
 
   return (
     <div className="container mx-auto py-6">
@@ -225,14 +244,25 @@ const RoleBasedOrders = filteredOrders.filter((order) => {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl">Orders</CardTitle>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={resetFilters}>
+                {/* <Button variant="outline" size="sm" onClick={resetFilters}>
                   <RefreshCcw className="h-4 w-4 mr-2" />
                   Reset
-                </Button>
+                </Button> */}
+                {userRole === "admin" && (
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={() => router.push("/OrderManagement/orderHistory")}
+  >
+    <RefreshCcw className="h-4 w-4 mr-2" />
+    History
+  </Button>
+)}
+
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col md:flex-row gap-4 mb-4">
+              {/* <div className="flex flex-col md:flex-row gap-4 mb-4">
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
                   <span className="text-sm font-medium">Filter:</span>
@@ -269,7 +299,7 @@ const RoleBasedOrders = filteredOrders.filter((order) => {
                     <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
                   </PopoverContent>
                 </Popover>
-              </div>
+              </div> */}
 
               <div className="rounded-md border">
                 <Table>
@@ -305,7 +335,7 @@ const RoleBasedOrders = filteredOrders.filter((order) => {
                             <Badge className={cn("text-white", getStatusColor(order.status))}>
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </Badge>
-                            {order.paymentStatus && <Badge className="ml-2 bg-green-500 text-white">Paid</Badge>}
+                            {/* {order.paymentStatus && <Badge className="ml-2 bg-green-500 text-white">Paid</Badge>} */}
                           </TableCell>
                           <TableCell>
                             {getAvailableActions(order).length > 0 ? (
@@ -342,8 +372,6 @@ const RoleBasedOrders = filteredOrders.filter((order) => {
               {selectedOrder ? (
                 <OrderDetails
                   order={selectedOrder}
-                  onUpdateStatus={(status) => updateOrderStatus(selectedOrder._id, status)}
-                  onUpdatePayment={(isPaid) => updatePaymentStatus(selectedOrder._id, isPaid)}
                   userRole={userRole}
                 />
               ) : (
