@@ -29,7 +29,9 @@ const ProductCard: React.FC<{
     : product.price;
 
   return (
+
     <div className="bg-white rounded-lg shadow-md overflow-hidden border transform hover:scale-105 transition duration-300">
+      
       {product.image ? (
         <img
           src={product.image}
@@ -123,8 +125,11 @@ const userMenuPage: React.FC = () => {
   };
 
   return (
+    
     <div className="max-w-7xl mx-auto p-5">
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        
         {products.length > 0 ? (
           products.map((product) => (
             <ProductCard

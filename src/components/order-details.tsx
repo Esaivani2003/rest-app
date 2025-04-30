@@ -11,9 +11,7 @@ type UserRole = "chef" | "waiter" | "admin"
 
 interface OrderDetailsProps {
   order: any
-  onUpdateStatus: (status: OrderStatus) => void
-  onUpdatePayment: (isPaid: boolean) => void
-  userRole: UserRole
+  userRole: UserRole | string
 }
 
 export default function OrderDetails({ order, userRole }: OrderDetailsProps) {

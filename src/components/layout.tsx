@@ -1,7 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { User, LogOut } from 'lucide-react'; // Add this at top
-
+import { User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/router';
 import {
   isAuthenticated,
@@ -19,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [authStatus, setAuthStatus] = useState<boolean>(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [userInfo, setUserInfo] = useState<{ name: string | null; role: string | null }>({
     name: null,
     role: null,
@@ -60,52 +60,57 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ☰
         </button>
 
-        <div className="flex items-center space-x-4 text-white">
-          {authStatus && !isAdmin() && !isChef() && !isWaiter() && (
+        <div className="flex items-center space-x-4 text-white relative">
+          {/* Show Orders button for all authenticated users */}
+          {!authStatus && (
             <Link href="/food-order">Orders</Link>
           )}
 
-{authStatus && (
-  <div className="relative group">
-    <div className="flex items-center space-x-2 cursor-pointer ">
-      <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
-        <User size={18} />
-      </div>
-      <span className="text-white font-medium">
-        {userInfo.name || 'User'}
-      </span>
-      <svg
-        className="w-4 h-4 text-white"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        {/* <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /> */}
-      </svg>
-    </div>
+          {authStatus && (
+            <div className="relative">
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => setShowProfileDropdown((prev) => !prev)}
+              >
+                <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
+                  <User size={18} />
+                </div>
+                <span className="text-white font-medium">
+                  {userInfo.name || 'User'}
+                </span>
+              </div>
 
-    {/* Dropdown */}
-    <div className="absolute right-0 mt-2 hidden group-hover:block bg-white text-black rounded-xl shadow-lg w-60 z-50 overflow-hidden">
-      <div className="flex items-center px-4 py-4 border-b space-x-3">
-        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-          <User size={20} />
-        </div>
-        <div>
-          <p className="font-semibold text-sm">{userInfo.name}</p>
-          <p className="text-xs text-gray-500 capitalize">{userInfo.role}</p>
-        </div>
-      </div>
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-gray-100 transition duration-150"
-      >
-        <LogOut size={18} />
-        Logout
-      </button>
-    </div>
-  </div>
-)}
+              {showProfileDropdown && (
+                <div className="absolute right-0 mt-2 bg-white text-black rounded-xl shadow-lg w-60 z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 pt-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User size={20} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{userInfo.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{userInfo.role}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="text-gray-500 hover:text-black text-lg font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-gray-100 transition duration-150 border-t mt-2"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </nav>
 
