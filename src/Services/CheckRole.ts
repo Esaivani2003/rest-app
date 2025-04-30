@@ -21,6 +21,23 @@
   // ✅ Authenticated if any valid role exists
   export const isAuthenticated = (): boolean => {
     const role = getUserRole();
-    return ["user", "admin", "chef", "waiter"].includes(role || "");
+    return [ "admin", "chef", "waiter"].includes(role || "");
+  };
+  export const getUserInfo = (): { name: string | null; role: string | null } => {
+    if (typeof window === "undefined") return { name: null, role: null };
+  
+    try {
+      const user = localStorage.getItem("user");
+      if (!user) return { name: null, role: null };
+  
+      const parsedUser = JSON.parse(user);
+      return {
+        name: parsedUser.name || null,
+        role: parsedUser.role || null,
+      };
+    } catch (error) {
+      console.error("Error retrieving user info:", error);
+      return { name: null, role: null };
+    }
   };
   

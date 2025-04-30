@@ -16,7 +16,7 @@ interface OrderDetailsProps {
   userRole: UserRole
 }
 
-export default function OrderDetails({ order, onUpdateStatus, onUpdatePayment, userRole }: OrderDetailsProps) {
+export default function OrderDetails({ order, userRole }: OrderDetailsProps) {
   // Get status badge color
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,31 +124,7 @@ export default function OrderDetails({ order, onUpdateStatus, onUpdatePayment, u
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium">Actions</h4>
-
-        {/* Status update button */}
-        {nextStatus && (
-          <Button className="w-full" onClick={() => onUpdateStatus(nextStatus as OrderStatus)}>
-            Mark as {nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}
-          </Button>
-        )}
-
-        {/* Payment button - only for waiters and admins when order is delivered */}
-        {(userRole === "waiter" || userRole === "admin") && order.status === "delivered" && !order.paymentStatus && (
-          <Button className="w-full" variant="outline" onClick={() => onUpdatePayment(true)}>
-            Mark as Paid
-          </Button>
-        )}
-
-        {/* No actions available message */}
-        {!nextStatus &&
-          !(
-            (userRole === "waiter" || userRole === "admin") &&
-            order.status === "delivered" &&
-            !order.paymentStatus
-          ) && <p className="text-sm text-muted-foreground text-center">No actions available for this order</p>}
-      </div>
+     
     </div>
   )
 }

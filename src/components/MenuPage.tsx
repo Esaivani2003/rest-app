@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { isAuthenticated, isAdmin, isChef, isWaiter } from "@/Services/CheckRole";
 
 interface Addon {
   name: string;
@@ -28,6 +28,17 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
   const discountedPrice = product.discount
     ? product.price - (product.price * product.discount) / 100
     : product.price;
+
+  const [authStatus, setAuthStatus] = useState<boolean>(false);
+  const [showCartButton, setShowCartButton] = useState<boolean>(false);
+
+  useEffect(() => {
+    const authenticated = isAuthenticated();
+    setAuthStatus(authenticated);
+
+    const isUser = authenticated && !isAdmin() && !isChef() && !isWaiter();
+    setShowCartButton(isUser);
+  }, []);
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border transform hover:scale-105 transition duration-300">
@@ -63,14 +74,16 @@ const ProductCard: React.FC<{ product: Product; toggleCart: (product: Product) =
             </ul>
           </div>
         )}
-        <button
-          onClick={() => toggleCart(product)}
-          className={`mt-4 w-full py-2 rounded-md transition ${
-            isInCart ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
-          } text-white`}
-        >
-          {isInCart ? "Remove from Cart" : "Add to Cart"}
-        </button>
+        {showCartButton && (
+          <button
+            onClick={() => toggleCart(product)}
+            className={`mt-4 w-full py-2 rounded-md transition ${
+              isInCart ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+            } text-white`}
+          >
+            {isInCart ? "Remove from Cart" : "Add to Cart"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -81,7 +94,6 @@ const ProductList: React.FC = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const router = useRouter();
 
-  // Load cart from local storage on initial render
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
@@ -89,7 +101,6 @@ const ProductList: React.FC = () => {
     }
   }, []);
 
-  // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -104,21 +115,16 @@ const ProductList: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // Update local storage whenever cart changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Function to add/remove product from cart
   const toggleCart = (product: Product) => {
     setCartItems((prevCart) => {
       const isAlreadyInCart = prevCart.some((item) => item._id === product._id);
-
-      if (isAlreadyInCart) {
-        return prevCart.filter((item) => item._id !== product._id); // Remove item
-      } else {
-        return [...prevCart, product]; // Add item
-      }
+      return isAlreadyInCart
+        ? prevCart.filter((item) => item._id !== product._id)
+        : [...prevCart, product];
     });
   };
 
