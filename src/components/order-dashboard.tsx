@@ -39,17 +39,27 @@ export default function OrderDashboard() {
     try {
       const response = await fetch("/api/orderRoute/orders")
       const data = await response.json()
-      setOrders(data) // Set the fetched data as orders
+  
+      const today = new Date()
+      const todayDateOnly = today.toISOString().split("T")[0] // e.g., "2025-04-30"
+  
+      const filteredOrders = data.filter((order: any) => {
+        const orderDate = new Date(order.createdAt).toISOString().split("T")[0]
+        return orderDate === todayDateOnly
+      })
+  
+      setOrders(filteredOrders)
     } catch (error) {
       console.error("Error fetching orders:", error)
     }
   }
+  
 
   useEffect(() => {
     if (orders && orders?.length < 2) {
       fetchOrders()
     }
-  }, [orders])
+  }, [])
 
   // Check authentication status on component mount
   useEffect(() => {
