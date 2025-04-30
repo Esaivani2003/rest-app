@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
+// import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -48,9 +48,15 @@ export default function OrderDashboard() {
   }, [])
 
   useEffect(() => {
-    const role = getUserRole()
-    setUserRole(role)
-  }, [])
+    const role = getUserRole(); // e.g., returns string | null
+  
+    if (role === "chef" || role === "waiter" || role === "admin") {
+      setUserRole(role);
+    } else {
+      setUserRole(null); // fallback for invalid or undefined roles
+    }
+  }, []);
+  
 
   useEffect(() => {
     let filtered = [...orders]
@@ -103,6 +109,9 @@ export default function OrderDashboard() {
     }
   })
 
+  // Ensure userRole is set to a valid UserRole before passing it
+const validUserRole = userRole ?? ""; 
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col gap-6">
@@ -151,7 +160,7 @@ export default function OrderDashboard() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} />
+                  {/* <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} /> */}
                 </PopoverContent>
               </Popover>
             </div>
@@ -190,7 +199,7 @@ export default function OrderDashboard() {
               <DialogTitle>Order Details</DialogTitle>
             </DialogHeader>
             {selectedOrder && (
-              <OrderDetails order={selectedOrder} userRole={userRole} />
+              <OrderDetails order={selectedOrder} userRole={validUserRole} />
             )}
           </DialogContent>
         </Dialog>

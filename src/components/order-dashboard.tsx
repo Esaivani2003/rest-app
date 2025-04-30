@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
+// import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import OrderDetails from "@/components/order-details"
 import { cn } from "@/lib/utils"
@@ -371,9 +371,10 @@ export default function OrderDashboard() {
             <CardContent>
               {selectedOrder ? (
                 <OrderDetails
-                  order={selectedOrder}
-                  userRole={userRole}
-                />
+                order={selectedOrder}
+                userRole={userRole as UserRole}
+              />
+              
               ) : (
                 <div className="flex flex-col items-center justify-center h-[400px] text-center">
                   <p className="text-muted-foreground">Select an order to view details</p>
