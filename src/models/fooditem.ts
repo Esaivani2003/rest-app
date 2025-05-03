@@ -4,12 +4,10 @@ const foodSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true },
+    FoodCategory: { type: String, required: true },
+    FoodType: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
-    category: {
-      type: String,
-      required: true,
-      
-    },
+    category: { type: String, required: true },
     image: { type: String, required: false },
     discount: {
       type: Number,
@@ -28,4 +26,7 @@ const foodSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Food || mongoose.model("Food", foodSchema);
+// Check if the model already exists before defining it
+const FoodItem = mongoose.models.Fooditems || mongoose.model("Fooditems", foodSchema);
+
+export default FoodItem;

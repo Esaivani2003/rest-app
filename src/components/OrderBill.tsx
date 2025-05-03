@@ -9,8 +9,83 @@ type Dish = {
   quantity: number;
 };
 
+type OrderDetailsModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (userName: string, userNumber: string) => void;
+  userName: string;
+  userNumber: string;
+  setUserName: (value: string) => void;
+  setUserNumber: (value: string) => void;
+};
+
+
+function OrderDetailsModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  userName,
+  userNumber,
+  setUserName,
+  setUserNumber,
+}: OrderDetailsModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h3 className="text-xl font-semibold mb-4">Enter Your Details</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm">Name</label>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="Enter your name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm">Phone Number</label>
+            <input
+              type="text"
+              value={userNumber}
+              onChange={(e) => setUserNumber(e.target.value)}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="Enter phone number"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 rounded"
+          >
+            Cancel
+          </button>
+          <button
+          disabled={!userName || !userNumber}
+            onClick={() => {
+              onClose();
+              onConfirm(userName, userNumber);
+            }}
+            className={`px-4 py-2 ${(!userName || !userNumber) ?" bg-gray-600":"bg-violet-600"}  text-white rounded`}
+          >
+            Confirm Order
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FoodOrderPage() {
   const [cartItems, setCartItems] = useState<Dish[]>([]);
+  const [UserName,setUsername] = useState("")
+  const [userNumber, setuserNumber] = useState("")
+  const [showModal, setShowModal] = useState(false);
 
   // Load cart from localStorage when the component mounts
   useEffect(() => {
@@ -23,6 +98,10 @@ export default function FoodOrderPage() {
       setCartItems(parsedCart);
     }
   }, []);
+
+  const closeModal =()=>{
+    setShowModal(false)
+  }
 
   // Update quantity
   const updateQuantity = (id: string, newQuantity: number) => {
@@ -59,9 +138,16 @@ export default function FoodOrderPage() {
 
   // Handle order placement
   const handleOrder = async () => {
+
+    setShowModal(true)
+   
+  };
+
+  const submitOrder = async () => {
     try {
       const orderData = {
-        userId: "user67d7c61350abf3a4b4edc548123", // Change this to dynamic if needed
+        userId: userNumber,
+        userName: UserName,
         items: cartItems.map((item) => ({
           _id: item._id,
           name: item.name,
@@ -74,7 +160,7 @@ export default function FoodOrderPage() {
         deliveryFee,
         totalAmount: total,
       };
-
+  
       const response = await fetch('/api/orderRoute/createOrder', {
         method: 'POST',
         headers: {
@@ -82,27 +168,27 @@ export default function FoodOrderPage() {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Order failed:', errorData);
         alert("Failed to place order. Please try again.");
         return;
       }
-
+  
       const result = await response.json();
       console.log("Order placed successfully:", result);
       alert("Order placed successfully!");
-
-      // Clear cart after a successful order
+  
       localStorage.removeItem('cart');
-      setCartItems([]); // Reset the state to reflect an empty cart
-
+      setCartItems([]);
+      closeModal();
     } catch (e: any) {
       console.error("Error placing order:", e);
       alert("Something went wrong while placing the order.");
     }
   };
+  
 
   return (
     <div className="flex flex-col max-w-md p-6 space-y-4 sm:w-96 sm:p-10 bg-white shadow-lg rounded-lg">
@@ -183,6 +269,19 @@ export default function FoodOrderPage() {
           </div>
         </>
       )}
+      <OrderDetailsModal
+  isOpen={showModal}
+  onClose={closeModal}
+  onConfirm={() => submitOrder()}
+  userName={UserName}
+  userNumber={userNumber}
+  setUserName={setUsername}
+  setUserNumber={setuserNumber}
+/>
     </div>
   );
 }
+
+
+
+
