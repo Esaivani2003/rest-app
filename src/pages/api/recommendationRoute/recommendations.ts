@@ -1,36 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import FoodItem from "@/models/fooditem";
 import connectToDatabase from "@/DB/mongodb";
-
-// Define types for health recommendations
-type DiseaseRecommendation = {
-  disease: string;
-  avoid: string[];
-  recommended: string[];
-  categories: string[];
-};
-
-// Health recommendations database
-const healthRecommendations: { [key: string]: DiseaseRecommendation } = {
-  diabetes: {
-    disease: "diabetes",
-    avoid: ["sugar", "refined carbs", "fried foods"],
-    recommended: ["whole grains", "leafy greens", "lean proteins"],
-    categories: ["Low Carb", "Sugar Free", "High Fiber"],
-  },
-  hypertension: {
-    disease: "hypertension",
-    avoid: ["salt", "fatty foods", "processed foods"],
-    recommended: ["fruits", "vegetables", "lean meats"],
-    categories: ["Low Sodium", "Heart Healthy"],
-  },
-  cholesterol: {
-    disease: "cholesterol",
-    avoid: ["saturated fats", "trans fats", "fried foods"],
-    recommended: ["omega-3 rich foods", "fiber-rich foods", "lean proteins"],
-    categories: ["Low Fat", "Heart Healthy"],
-  },
-};
+import Disease from "@/models/disease";
+import FoodItem from "@/models/fooditem";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -46,15 +17,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Diseases array is required" });
     }
 
-    // Merge recommendations from all diseases
-    const mergedRecommendations = diseases.reduce(
-      (acc, disease) => {
-        const recommendation = healthRecommendations[disease.toLowerCase()];
-        if (recommendation) {
-          acc.avoid.push(...recommendation.avoid);
-          acc.recommended.push(...recommendation.recommended);
-          acc.categories.push(...recommendation.categories);
-        }
+    // Normalize input diseases (trim & lowercase)
+    const normalizedDiseases = diseases.map((d: string) => d.trim().toLowerCase());
+
+    // Find all matching disease documents
+    const matchedDiseases = await Disease.find({
+      disease: { $in: normalizedDiseases }
+    });
+
+    if (!matchedDiseases || matchedDiseases.length === 0) {
+      return res.status(404).json({ error: "No matching diseases found in the database" });
+    }
+
+    // Merge recommendations
+    const merged = matchedDiseases.reduce(
+      (acc, dis) => {
+        acc.avoid.push(...dis.avoid);
+        acc.recommended.push(...dis.recommended);
+        acc.categories.push(...dis.categories);
         return acc;
       },
       {
@@ -64,22 +44,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     );
 
-    if (mergedRecommendations.categories.length === 0) {
-      return res.status(404).json({ error: "No valid recommendations found for given diseases" });
+    // Deduplicate values
+    const uniqueAvoid = [...new Set(merged.avoid)];
+    const uniqueRecommended = [...new Set(merged.recommended)];
+    const uniqueCategories = [...new Set(merged.categories)];
+
+    if (uniqueCategories.length === 0) {
+      return res.status(404).json({ error: "No recommendations found for the selected diseases" });
     }
 
-    // Remove duplicates
-    const uniqueCategories = [...new Set(mergedRecommendations.categories)];
-    const uniqueAvoid = [...new Set(mergedRecommendations.avoid)];
-    const uniqueRecommended = [...new Set(mergedRecommendations.recommended)];
-
-    // Get recommended dishes from the database based on merged categories
+    // Get dishes matching recommended categories
     const recommendedDishes = await FoodItem.find({
       category: { $in: uniqueCategories },
-    }).select("name description price category image");
+    });
 
     return res.status(200).json({
-      diseases,
+      diseases: normalizedDiseases,
       recommendations: {
         avoid: uniqueAvoid,
         recommended: uniqueRecommended,

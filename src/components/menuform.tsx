@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface Addon {
@@ -16,6 +16,8 @@ interface FormData {
   description: string;
   addons: Addon[];
   image: FileList;
+  FoodCategory:string,
+  FoodType:string
 }
 
 const categories = [
@@ -37,6 +39,28 @@ const convertToBase64 = (file: File): Promise<string> => {
 const AddFoodPage = () => {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
   const [addons, setAddons] = useState<Addon[]>([]);
+   const [diseaseSee, setSeeDisease] = useState<string[]>([]);
+
+   useEffect(() => {
+    const fetchDiseases = async () => {
+      try {
+        // if (disease.length === 0) return; // Check if there are diseases selected
+  
+        // Call recommendation API with the diseases array
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/diseases`);
+  
+        const data = await response.json();
+        setSeeDisease(data.flatMap((disease: any) => disease.categories)); // Set the fetched products
+      } catch (error) {
+        console.error("Error fetching recommended products:", error);
+      }
+    };
+    if(diseaseSee.length === 0){
+      fetchDiseases()
+    }
+    
+    }, []);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     console.log("Form Data before submission:", data);
@@ -52,6 +76,8 @@ const AddFoodPage = () => {
       description: data.description,
       image: base64Image, // Store Base64 in DB
       addons: JSON.stringify(addons),
+      FoodCategory:data.FoodCategory,
+      FoodType:data.FoodType
     };
 
     try {
@@ -96,9 +122,20 @@ const AddFoodPage = () => {
         </div>
 
         <div>
+          <label className="block font-semibold">FoodCategory:</label>
+          <input type="text" {...register("FoodCategory", { required: true })} className="border p-2 rounded w-full" />
+          {errors.FoodCategory && <p className="text-red-500 text-xs">FoodCategory is required</p>}
+        </div>
+        <div>
+          <label className="block font-semibold">FoodType:</label>
+          <input type="text" {...register("FoodType", { required: true })} className="border p-2 rounded w-full" />
+          {errors.FoodType && <p className="text-red-500 text-xs">FoodType is required</p>}
+        </div>
+
+        <div>
           <label className="block font-semibold">Category:</label>
           <select {...register("category", { required: true })} className="border p-2 rounded w-full">
-            {categories.map((cat) => (
+            {diseaseSee.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>

@@ -7,10 +7,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     try {
-      const { name, description, price, category, image, discount = 0, addons = [] } = req.body;
+      const {
+        name,
+        description,
+        price,
+        category,
+        FoodCategory,
+        FoodType,
+        image,
+        discount = 0,
+        addons = [],
+      } = req.body;
+
+      console.log("Received data:", req.body);
 
       // Validation
-      if (!name || !description || !price || !category) {
+      if (
+        !name ||
+        !description ||
+        !price ||
+        !category ||
+        !FoodCategory ||
+        !FoodType
+      ) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -18,29 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (image) {
         const base64Pattern = /^data:image\/(png|jpeg|jpg|gif);base64,/;
         if (!base64Pattern.test(image)) {
-          return res.status(400).json({ message: "Invalid Base64 image format" });
+          return res
+            .status(400)
+            .json({ message: "Invalid Base64 image format" });
         }
-      }
-
-      // Validate category against allowed list (as per schema)
-      const allowedCategories = [
-        "Vegetarian",
-        "Non-Vegetarian",
-        "Vegan",
-        "Dessert",
-        "Beverage",
-        "Fast Food",
-        "Main Course",
-        "Breakfast",
-        "Low Carb",
-        "Sugar Free",
-        "High Fiber",
-        "Low Sodium",
-        "Heart Healthy",
-        "Low Fat"
-      ];
-      if (!allowedCategories.includes(category)) {
-        return res.status(400).json({ message: "Invalid category" });
       }
 
       // Parse addons safely
@@ -49,30 +49,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const newFoodItem = new FoodItem({
         name: name.trim(),
         description,
+        FoodCategory,
+        FoodType,
         price: parseFloat(price),
         category,
-        image: image || "", // store Base64 or empty string
+        image: image || "",
         discount: parseFloat(discount),
-        addons: parsedAddons
+        addons: parsedAddons,
       });
 
       await newFoodItem.save();
 
       return res.status(201).json({ success: true, newFoodItem });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating food item:", error);
-      return res.status(500).json({ message: "Error creating food item", error });
+    
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+    
+      return res.status(500).json({ message: "Error creating food item", error: errorMessage });
     }
+    
   }
 
   if (req.method === "GET") {
     try {
       const foodItems = await FoodItem.find();
       return res.status(200).json(foodItems);
-    } catch (error) {
-      console.error("Error fetching food items:", error);
-      return res.status(500).json({ message: "Error fetching food items", error });
+    } catch (error: unknown) {
+      console.error("Error creating food item:", error);
+    
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+    
+      return res.status(500).json({ message: "Error creating food item", error: errorMessage });
     }
+    
   }
 
   return res.status(405).json({ message: "Method Not Allowed" });
