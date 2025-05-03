@@ -81,14 +81,15 @@ const ProductCard: React.FC<{
         )}
         <button
   onClick={() => toggleCart(product)}
-  className={`mt-4 w-full py-2 rounded-md transition-colors ${
+  className={`mt-4 w-full py-2 rounded-md transition-colors text-white ${
     isInCart
-      ? "bg-gradient-to-r from-pink-500 via-pink-600 to-pink-700 hover:from-pink-600 hover:via-pink-700 hover:to-pink-800"
+      ? "bg-gray-500 hover:bg-gray-600"
       : "bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:from-pink-500 hover:via-pink-600 hover:to-pink-700"
-  } text-white`}
+  }`}
 >
   {isInCart ? "Remove from Cart" : "Add to Cart"}
 </button>
+
 
       </div>
     </div>
