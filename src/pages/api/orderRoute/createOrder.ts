@@ -14,8 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         discount, 
         serviceFee, 
         deliveryFee, 
-        totalAmount 
+        totalAmount,
+        userName
       } = req.body;
+     
+
 
       // Validate required fields
       if (!userId || !items || !Array.isArray(items) || items.length === 0) {
@@ -25,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Create new order
       const newOrder = new Order({
         userId,
+        userName,
         items: items.map(item => ({
           dishId: item._id,
           name: item.name,
