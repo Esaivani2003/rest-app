@@ -38,17 +38,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   
   useEffect(() => {
-    if (!authStatus) {
+    if (hasMounted && authStatus === false) {
       const currentRoute = router.pathname;
   
-      // Allow access to /Dev and /food-order even if authenticated
-      if (currentRoute !== '/Dev' && currentRoute !== '/food-order') {
-        router.push('/NotFound');  // Redirect to the "Not Found" page
+      // Allow public routes even if not authenticated
+      const publicRoutes = ['/Dev', '/food-order', '/login', '/NotFound'];
+  
+      if (!publicRoutes.includes(currentRoute)) {
+        router.push('/NotFound');
       }
     }
-
-  }, [router]);
-
+  }, [hasMounted, authStatus, router]);
+  
   
   
 

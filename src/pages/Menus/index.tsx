@@ -8,7 +8,7 @@ export default function Product() {
     <div>
       <div className="flex pt-5 px-8 justify-between items-center">
               <h1 className="text-2xl font-bold">Menu</h1>
-              <PopupFilter />
+              {/* <PopupFilter /> */}
             </div>
       <ProductPage />
     </div>
