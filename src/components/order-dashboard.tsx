@@ -196,13 +196,13 @@ export default function OrderDashboard() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Order failed:', errorData);
-        toast.error("Failed to update order staus. Please try again.");
+        toast.error("Failed to update order status. Please try again.");
         return;
       }
 
       const result = await response.json();
       console.log("Order staus updated successfully:", result);
-      toast.success("Order staus updated successfully!");
+      toast.success("Order status updated successfully!");
       fetchOrders()
 
     } catch (e: any) {
