@@ -1,18 +1,20 @@
+"use client";
+
 import { useState } from "react";
 import Head from "next/head";
 import axios from "axios";
 import { useRouter } from "next/router";
+import toast, { Toaster } from "react-hot-toast";  // Import toast and Toaster
 
 const EmployeePage = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [employee, setEmployee] = useState({
     name: "",
     email: "",
     phone: "",
     password: "",
     role: ""
-  }
-  );
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setEmployee({ ...employee, [e.target.name]: e.target.value });
@@ -21,25 +23,29 @@ const EmployeePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-       const response:any = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/usersRoute/users`, employee);
-       if (response.status === 201 || response.status === 200) {
-        alert("Employee Added Successfully!");
+      const response: any = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/usersRoute/users`, employee);
+      if (response.status === 201 || response.status === 200) {
+        toast.success("Employee Added Successfully!");  // Use toast.success instead of alert
         router.push("/Employee");
       } else {
-        alert("Failed to Add Employee!");
+        toast.error("Failed to Add Employee!");  // Use toast.error instead of alert
       }
     } catch (err) {
       console.error("Error adding employee", err);
-      alert("An error occurred while adding the employee.");
+      toast.error("An error occurred while adding the employee.");  // Use toast.error instead of alert
     }
   };
 
   return (
-    <div className=" w-[90%] bg-amber-600">
+    <div className="w-[90%] bg-amber-600">
       <Head>
         <title>Employee Registration</title>
       </Head>
-      <div className="min-h-screen w-full  flex items-center justify-center bg-gray-100">
+
+      {/* Add Toaster component once in your app (can be here or at top layout) */}
+      <Toaster position="top-right" reverseOrder={false} />
+
+      <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
           <h2 className="text-3xl font-semibold text-gray-800 text-center">Employee Registration</h2>
           <p className="text-gray-600 mt-2 text-center">Register a new employee in the system.</p>
@@ -56,7 +62,7 @@ const EmployeePage = () => {
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="Email Address"
               value={employee.email}
               onChange={handleChange}
               required
@@ -65,7 +71,7 @@ const EmployeePage = () => {
             <input
               type="text"
               name="phone"
-              placeholder="Phone"
+              placeholder="Phone Number"
               value={employee.phone}
               onChange={handleChange}
               required
@@ -74,6 +80,7 @@ const EmployeePage = () => {
             <input
               type="password"
               name="password"
+              placeholder="Password"
               value={employee.password}
               onChange={handleChange}
               required
@@ -89,7 +96,7 @@ const EmployeePage = () => {
               <option value="">Select Role</option>
               <option value="chef">Chef</option>
               <option value="waiter">Waiter</option>
-              <option value="provider">Provider</option>
+              {/* <option value="provider">Provider</option> */}
               <option value="admin">Admin</option>
             </select>
             <button

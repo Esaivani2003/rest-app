@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { toast } from 'sonner';
+
 
 type Dish = {
   _id: string;
@@ -144,51 +146,56 @@ export default function FoodOrderPage() {
   };
 
   const submitOrder = async () => {
-    try {
-      const orderData = {
-        userId: userNumber,
-        userName: UserName,
-        items: cartItems.map((item) => ({
-          _id: item._id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        subtotal,
-        discount,
-        serviceFee,
-        deliveryFee,
-        totalAmount: total,
-      };
-  
-      const response = await fetch('/api/orderRoute/createOrder', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Order failed:', errorData);
-        alert("Failed to place order. Please try again.");
-        return;
-      }
-  
-      const result = await response.json();
-      console.log("Order placed successfully:", result);
-      alert("Order placed successfully!");
-  
-      localStorage.removeItem('cart');
-      setCartItems([]);
-      closeModal();
-    } catch (e: any) {
-      console.error("Error placing order:", e);
-      alert("Something went wrong while placing the order.");
+  try {
+    const orderData = {
+      userId: userNumber,
+      userName: UserName,
+      items: cartItems.map((item) => ({
+        _id: item._id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      subtotal,
+      discount,
+      serviceFee,
+      deliveryFee,
+      totalAmount: total,
+    };
+
+    const response = await fetch('/api/orderRoute/createOrder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Order failed:', errorData);
+      toast.error("Order Failed", {
+  description: "Something went wrong while placing the order. Try again.",
+});
+
+      return;
     }
-  };
-  
+
+    const result = await response.json();
+    console.log("Order placed successfully:", result);
+    toast.success("Order Confirmed", {
+  description: "Thank you for your order! We’ll start preparing it shortly.",
+});
+
+    localStorage.removeItem('cart');
+    setCartItems([]);
+    closeModal();
+  } catch (e: any) {
+    console.error("Error placing order:", e);
+    toast.error("Something went wrong while placing the order.");
+  }
+};
+
 
   return (
     <div className="flex flex-col max-w-md p-6 space-y-4 sm:w-96 sm:p-10 bg-white shadow-lg rounded-lg">

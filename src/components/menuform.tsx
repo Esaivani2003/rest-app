@@ -2,6 +2,7 @@
 
 import { useState,useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 
 interface Addon {
   name: string;
@@ -88,14 +89,17 @@ const AddFoodPage = () => {
       });
 
       if (response.ok) {
-        alert("Item added successfully!");
+       toast.success("Item added successfully!");
+
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.message}`);
+       toast.error(`Error: ${errorData.message}`);
+
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while adding the item.");
+      toast.error("An error occurred while adding the item.");
+
     }
   };
 
