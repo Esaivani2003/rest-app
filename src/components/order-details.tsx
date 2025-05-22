@@ -114,10 +114,10 @@ export default function OrderDetails({ order, userRole }: OrderDetailsProps) {
           <span>Total</span>
           <span>₹{order.totalAmount.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between items-center">
+        {/* <div className="flex justify-between items-center">
           <span>Payment Status</span>
           <Badge variant={order.paymentStatus ? "default" : "outline"}>{order.paymentStatus ? "Paid" : "Unpaid"}</Badge>
-        </div>
+        </div> */}
       </div>
 
       <Separator />
