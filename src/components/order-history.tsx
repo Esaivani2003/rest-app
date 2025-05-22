@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { CalendarIcon, Filter, RefreshCcw } from "lucide-react"
+import { Filter, RefreshCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-// import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -27,7 +25,6 @@ export default function OrderDashboard() {
   const [orders, setOrders] = useState(initialOrders)
   const [filteredOrders, setFilteredOrders] = useState(initialOrders)
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
   const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
 
@@ -48,15 +45,13 @@ export default function OrderDashboard() {
   }, [])
 
   useEffect(() => {
-    const role = getUserRole(); // e.g., returns string | null
-  
+    const role = getUserRole()
     if (role === "chef" || role === "waiter" || role === "admin") {
-      setUserRole(role);
+      setUserRole(role)
     } else {
-      setUserRole(null); // fallback for invalid or undefined roles
+      setUserRole(null)
     }
-  }, []);
-  
+  }, [])
 
   useEffect(() => {
     let filtered = [...orders]
@@ -65,24 +60,14 @@ export default function OrderDashboard() {
       filtered = filtered.filter((order) => order.status === statusFilter)
     }
 
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter)
-      filtered = filtered.filter((order) => {
-        const orderDate = new Date(order.createdAt)
-        return (
-          orderDate.getDate() === filterDate.getDate() &&
-          orderDate.getMonth() === filterDate.getMonth() &&
-          orderDate.getFullYear() === filterDate.getFullYear()
-        )
-      })
-    }
+    // Removed dateFilter logic
 
     setFilteredOrders(filtered)
-  }, [orders, statusFilter, dateFilter])
+  }, [orders, statusFilter])
 
   const resetFilters = () => {
     setStatusFilter("all")
-    setDateFilter(undefined)
+    // Removed dateFilter reset
   }
 
   const getStatusColor = (status: string) => {
@@ -109,8 +94,7 @@ export default function OrderDashboard() {
     }
   })
 
-  // Ensure userRole is set to a valid UserRole before passing it
-const validUserRole = userRole ?? ""; 
+  const validUserRole = userRole ?? ""
 
   return (
     <div className="container mx-auto py-6">
@@ -151,21 +135,9 @@ const validUserRole = userRole ?? "";
                   <SelectItem value="paid">Paid</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-[240px] justify-start text-left", !dateFilter && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  {/* <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} /> */}
-                </PopoverContent>
-              </Popover>
             </div>
 
-            <div className="overflow-y-auto max-h-[400px]"> {/* Vertical scroll only */}
+            <div className="overflow-y-auto max-h-[400px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -177,7 +149,7 @@ const validUserRole = userRole ?? "";
                 </TableHeader>
                 <TableBody>
                   {RoleBasedOrders.map((order) => (
-                    <TableRow key={order._id}  onClick={() => setSelectedOrder(order)}>
+                    <TableRow key={order._id} onClick={() => setSelectedOrder(order)}>
                       <TableCell>{order._id.slice(-6)}</TableCell>
                       <TableCell>{order.items.map((item: any) => item.name).join(", ")}</TableCell>
                       <TableCell>
@@ -192,7 +164,6 @@ const validUserRole = userRole ?? "";
           </CardContent>
         </Card>
 
-        {/* Order Details Popup Modal */}
         <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
