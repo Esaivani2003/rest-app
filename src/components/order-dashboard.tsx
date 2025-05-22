@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import OrderDetails from "@/components/order-details"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/router";
+import { toast } from "sonner"
+
 
 
 // Mock data - in a real app, this would come from an API
@@ -194,18 +196,19 @@ export default function OrderDashboard() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Order failed:', errorData);
-        alert("Failed to update order staus. Please try again.");
+        toast.error("Failed to update order staus. Please try again.");
         return;
       }
 
       const result = await response.json();
       console.log("Order staus updated successfully:", result);
-      alert("Order staus updated successfully!");
+      toast.success("Order staus updated successfully!");
       fetchOrders()
 
     } catch (e: any) {
       console.error("Error placing order:", e);
-      alert("Something went wrong while placing the order.");
+      toast.error("Something went wrong while placing the order.");
+
     }
 
   }
