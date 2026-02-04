@@ -93,11 +93,11 @@ const EmployeePage = () => {
               required
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <option value="">Select Role</option>
+              {/* <option value="">Select Role</option> */}
               <option value="chef">Chef</option>
               <option value="waiter">Waiter</option>
               {/* <option value="provider">Provider</option> */}
-              <option value="admin">Admin</option>
+              {/* <option value="admin">Admin</option> */}
             </select>
             <button
               type="submit"
